@@ -28,13 +28,9 @@ public class SeleniumTest {
                 .setSearch("summer")
         ;
         SearchPage searchPage = new SearchPage(driver);
-        searchPage
-                .isPageOpened()
-
-        ;
-//        Boolean display = driver.findElement(By.xpath("//span[@class = 'lighter' and contains (text(), 'summer')]")).isDisplayed();
-//        VerifySearchPage verifySearchPage = new VerifySearchPage(driver);
-//        Assert.assertTrue(verifySearchPage.isPageOpened());
+        searchPage.isPageOpened();
+        searchPage.dropdownPriceHighestFirst();
+        searchPage.verifySort();
     }
 
     @After
