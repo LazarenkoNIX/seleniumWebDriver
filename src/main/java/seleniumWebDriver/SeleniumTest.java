@@ -31,6 +31,10 @@ public class SeleniumTest {
         searchPage.isPageOpened();
         searchPage.dropdownPriceHighestFirst();
         searchPage.verifySort();
+        searchPage.saveItem();
+        searchPage.addItemToCart();
+        searchPage.comparePrice();
+        searchPage.compareName();
     }
 
     @After
