@@ -46,7 +46,7 @@ public class SearchPage {
     @FindBy(xpath = "//span[@id='total_product_price_5_19_0']")
     private WebElement totalPriceCart;
 
-    @FindBy(xpath = "//div/p[@class = 'product-name']/a")
+    @FindBy(xpath = "//td/p[@class = 'product-name']/a")
     private WebElement cartItemName;
 
     String saveItemName;
