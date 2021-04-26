@@ -1,5 +1,7 @@
 package seleniumWebDriver;
 
+import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -8,7 +10,6 @@ import org.openqa.selenium.support.PageFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -26,6 +27,9 @@ public class SearchPage {
 
     @FindBy(xpath = "//div[@class = 'right-block']//span[@class = 'old-price product-price']")
     private List<WebElement> oldPrice;
+
+    @FindBy(xpath = "//div[@class = 'right-block']//span[@class = 'old-price product-price']")
+    private WebElement oldPriceTmp;
 
     @FindBy(xpath = "//div[@class = 'right-block']//span[@class = 'price product-price' or @class = 'old-price product-price']")
     private List<WebElement> price;
@@ -49,6 +53,9 @@ public class SearchPage {
     @FindBy(xpath = "//td/p[@class = 'product-name']/a")
     private WebElement cartItemName;
 
+    @FindBy(xpath = "//div[@class='right-block']")
+    private List<WebElement> priceBlock;
+
     String saveItemName;
     Double saveItemPrice;
 
@@ -65,16 +72,29 @@ public class SearchPage {
     }
 
     public void verifySort() {
-        List<Double> convertToDoublePrice = new ArrayList<Double>();
-        for (WebElement element : newPrice) {
-            convertToDoublePrice.add(Double.parseDouble(element.getText().replace("$", "")));
+        List<Double> prices = new ArrayList<Double>();
+        List<Double> sortedPrice = prices;
+//        for (WebElement element : newPrice) {
+//            convertToDoublePrice.add(Double.parseDouble(element.getText().replace("$", "")));
+//        }
+        for (WebElement block : priceBlock) {
+            if (noSuchElement(block,".//span[@class = 'old-price product-price']")) {
+                prices.add(Double.parseDouble(block.findElement(By.xpath(".//span[@class = 'old-price product-price']")).getText().replace("$", "")));
+//                System.out.println(block.findElement(By.xpath(".//span[@class = 'old-price product-price']")).getText());
+            } else {
+                prices.add(Double.parseDouble(block.findElement(By.xpath(".//span[@class = 'price product-price']")).getText().replace("$", "")));
+            }
         }
+//        System.out.println(prices);
+
+//        List<Double> convertToDoublePriceTemp = priceBlock.stream().collect(Collectors.toList());
 //        System.out.println(convertToDoublePrice);
-        List<Double> sortedPrice = convertToDoublePrice.stream()
-                .sorted(Collections.reverseOrder())
-                .collect(Collectors.toList());
+        sortedPrice.sort(Collections.reverseOrder());
+//                .stream()
+//                .sorted(Collections.reverseOrder())
+//                .collect(Collectors.toList());
 //        System.out.println(sortedPrice);
-//        assertEquals(convertToDoublePrice, sortedPrice);
+        assertEquals(prices, sortedPrice);
 
 //        List<Double> afterSortPrice = new ArrayList<Double>();
 //        for (WebElement element : price) {
@@ -103,10 +123,19 @@ public class SearchPage {
 
     public void comparePrice() {
         double totalItemCartPrice = Double.parseDouble(totalPriceCart.getText().replace("$", ""));
-        assertThat(totalItemCartPrice, closeTo(saveItemPrice, 0.1));
+        assertThat(totalItemCartPrice, closeTo(saveItemPrice, 0.01));
     }
 
-    public void compareName(){
+    public void compareName() {
         assertThat(cartItemName.getText(), equalToIgnoringCase(saveItemName));
+    }
+
+    public boolean noSuchElement(WebElement webElement, String xpath) {
+        try {
+            webElement.findElement(By.xpath(xpath));
+            return true;
+        } catch (NoSuchElementException e) {
+            return false;
+        }
     }
 }

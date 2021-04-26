@@ -16,6 +16,7 @@
         <webdrivermanager.version>4.3.1</webdrivermanager.version>
         <junit.version>4.13.2</junit.version>
         <hamcrest.version>2.2</hamcrest.version>
+        <org.testng.version>7.4.0</org.testng.version>
     </properties>
 
     <dependencies>
@@ -94,6 +95,15 @@
             <version>2.2</version>
             <scope>compile</scope>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.testng/testng -->
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>${org.testng.version}</version>
+            <scope>test</scope>
+        </dependency>
+
 
 
     </dependencies>

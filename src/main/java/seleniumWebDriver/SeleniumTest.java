@@ -2,17 +2,43 @@ package seleniumWebDriver;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.openqa.selenium.By;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.annotations.DataProvider;
 
 import java.util.concurrent.TimeUnit;
 
+//@RunWith(Parameterized.class)
 public class SeleniumTest {
     WebDriver driver;
+//    private String firstSearch;
+//    private String secondSearch;
+//    private String thirdSearch;
+
+//    public SeleniumTest(String firstSearch, String secondSearch, String thirdSearch) {
+//        super();
+//        this.firstSearch = firstSearch;
+//        this.secondSearch = secondSearch;
+//        this.thirdSearch = thirdSearch;
+//    }
+//
+//    @Parameterized.Parameters
+//    public static searchItems() {
+//        return;
+//    }
+
+    public class DataProviderClass
+    {
+        @DataProvider(name = «data-provider»)
+        public static Object[][] dataProviderMethod()
+        {
+            return new Object[][] { { «data one» }, { «data two» } };
+        }
+    }
 
     @Before
     public void setup() {
@@ -22,11 +48,23 @@ public class SeleniumTest {
     }
 
     @Test
-    public void applySearch() {
+    public void applySearchSummer() {
         HomePage home = new HomePage(driver);
-        home
-                .setSearch("summer")
-        ;
+        home.setSearch("summer");
+        SearchPage searchPage = new SearchPage(driver);
+        searchPage.isPageOpened();
+        searchPage.dropdownPriceHighestFirst();
+        searchPage.verifySort();
+        searchPage.saveItem();
+        searchPage.addItemToCart();
+        searchPage.comparePrice();
+        searchPage.compareName();
+    }
+
+    @Test
+    public void applySearchDress() {
+        HomePage home = new HomePage(driver);
+        home.setSearch("dress");
         SearchPage searchPage = new SearchPage(driver);
         searchPage.isPageOpened();
         searchPage.dropdownPriceHighestFirst();
