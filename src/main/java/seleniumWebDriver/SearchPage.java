@@ -63,8 +63,8 @@ public class SearchPage {
         PageFactory.initElements(driver, this);
     }
 
-    public void isPageOpened() {
-        assertThat(search.getText(), containsString("SUMMER"));
+    public void isPageOpened(String searchText) {
+        assertThat(search.getText(), containsString(searchText));
     }
 
     public void dropdownPriceHighestFirst() {
