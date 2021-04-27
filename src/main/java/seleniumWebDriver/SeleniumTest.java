@@ -1,9 +1,6 @@
 package seleniumWebDriver;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
-
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.testng.annotations.AfterTest;
@@ -11,6 +8,8 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 //@RunWith(Parameterized.class)
@@ -46,16 +45,19 @@ public class SeleniumTest {
 
     @Test(dataProvider = "data-provider")
     public void applySearchSummer(String data) {
+        Map<String, Double> priceMap = new HashMap<>();
+
         HomePage home = new HomePage(driver);
+        //Step1
         home.setSearch(data);
         SearchPage searchPage = new SearchPage(driver);
-        searchPage.isPageOpened("\"" + data + "\"");
+        searchPage.verifySearchFilterIsDisplayed(data);
         searchPage.dropdownPriceHighestFirst();
         searchPage.verifySort();
-        searchPage.saveItem();
+        searchPage.saveItemNameAndPrice(priceMap);
         searchPage.addItemToCart();
-        searchPage.comparePrice();
-        searchPage.compareName();
+        searchPage.comparePrice()
+                .compareName();
     }
 
     @AfterTest

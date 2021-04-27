@@ -10,7 +10,10 @@ import org.openqa.selenium.support.PageFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
+import static java.lang.Double.parseDouble;
+import static java.lang.String.format;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertEquals;
@@ -35,7 +38,7 @@ public class SearchPage {
     private List<WebElement> price;
 
     @FindBy(xpath = "//div[@class = 'right-block']//a[@class = 'product-name']")
-    private WebElement itemName;
+    private List<WebElement> itemName;
 
     @FindBy(xpath = "//div[@class = 'right-block']//span[@class = 'price product-price']")
     private WebElement itemPrice;
@@ -63,8 +66,9 @@ public class SearchPage {
         PageFactory.initElements(driver, this);
     }
 
-    public void isPageOpened(String searchText) {
-        assertThat(search.getText(), containsString(searchText));
+    public void verifySearchFilterIsDisplayed(String searchText) {
+        assertThat(search.getText(), equalTo(format("\"%s\"", searchText)));
+        //TODO verify
     }
 
     public void dropdownPriceHighestFirst() {
@@ -79,10 +83,11 @@ public class SearchPage {
 //        }
         for (WebElement block : priceBlock) {
             if (noSuchElement(block,".//span[@class = 'old-price product-price']")) {
-                prices.add(Double.parseDouble(block.findElement(By.xpath(".//span[@class = 'old-price product-price']")).getText().replace("$", "")));
+                prices.add(parseDouble(block.findElement(By.xpath(".//span[@class = 'old-price product-price']")).getText().replace("$", "")));
+                //TODO create method
 //                System.out.println(block.findElement(By.xpath(".//span[@class = 'old-price product-price']")).getText());
             } else {
-                prices.add(Double.parseDouble(block.findElement(By.xpath(".//span[@class = 'price product-price']")).getText().replace("$", "")));
+                prices.add(parseDouble(block.findElement(By.xpath(".//span[@class = 'price product-price']")).getText().replace("$", "")));
             }
         }
 //        System.out.println(prices);
@@ -111,9 +116,9 @@ public class SearchPage {
 //        System.out.println(afterSortPrice);
     }
 
-    public void saveItem() {
-        saveItemName = itemName.getText();
-        saveItemPrice = Double.parseDouble(itemPrice.getText().replace("$", ""));
+    public void saveItemNameAndPrice(Map<String, Double> mapPrice) {
+        mapPrice.put(itemName.stream().findFirst().get().getText(), parseDouble(itemPrice.getText().replace("$", "")));
+        //TODO change to block
     }
 
     public void addItemToCart() {
@@ -121,9 +126,10 @@ public class SearchPage {
         moveToCart.click();
     }
 
-    public void comparePrice() {
-        double totalItemCartPrice = Double.parseDouble(totalPriceCart.getText().replace("$", ""));
+    public SearchPage comparePrice() {
+        double totalItemCartPrice = parseDouble(totalPriceCart.getText().replace("$", ""));
         assertThat(totalItemCartPrice, closeTo(saveItemPrice, 0.01));
+        return this;
     }
 
     public void compareName() {
