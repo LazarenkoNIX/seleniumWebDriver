@@ -56,6 +56,7 @@ public class SearchPage {
 
     @FindBy(xpath = "//div[@class='right-block']")
     private List<WebElement> priceBlock;
+    //TODO block for xpath
 
     Map<String, Double> mapCartPrice = new HashMap<>();
 
@@ -110,7 +111,8 @@ public class SearchPage {
         return mapPrice.entrySet().stream()
                 .allMatch(e -> e.getValue().equals(mapCartPrice.get(e.getKey())));
     }
-    public void returnMap(){
+
+    public void returnMapCartPrice(){
         for (Map.Entry entry : mapCartPrice.entrySet()) {
             System.out.println("Key: " + entry.getKey() + " Value: "
                     + entry.getValue());

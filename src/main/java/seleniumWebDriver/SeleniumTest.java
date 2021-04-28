@@ -24,7 +24,7 @@ public class SeleniumTest {
 
     @DataProvider(name = "data-provider")
     public Object[][] dataProviderMethod() {
-        return new Object[][]{{"summer"}, {"dress"}, {"t-shirt"}};
+        return new Object[][]{{"summer"}, {"dress"}, {"t-shirt"}, {"dress"}};
     }
 
     @Test(dataProvider = "data-provider")
@@ -53,7 +53,7 @@ public class SeleniumTest {
         searchPage.saveItemNameAndPriceFromCart();
         //Step8
         searchPage.comparePrice(priceMap);
-        searchPage.returnMap();
+        searchPage.returnMapCartPrice();
     }
 
     @AfterTest
