@@ -18,17 +18,17 @@ public class SeleniumTest {
     @BeforeTest
     public void setup() {
         WebDriverManager.chromedriver().setup();
-        driver = new ChromeDriver();
-        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
     }
 
     @DataProvider(name = "data-provider")
     public Object[][] dataProviderMethod() {
-        return new Object[][]{{"summer"}, {"dress"}, {"t-shirt"}, {"dress"}};
+        return new Object[][]{{"summer"}, {"dress"}, {"t-shirt"}};
     }
 
     @Test(dataProvider = "data-provider")
     public void applySearchSummer(String data) {
+        driver = new ChromeDriver();
+        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
         Map<String, Double> priceMap = new HashMap<>();
         //Step1
         HomePage home = new HomePage(driver);
@@ -36,13 +36,13 @@ public class SeleniumTest {
         home.setSearch(data);
         //Step3
         SearchPage searchPage = new SearchPage(driver);
-        searchPage.verifySearchFilterIsDisplayed(data);
-        //Step4
-        searchPage.dropdownPriceHighestFirst();
-        //Step5
-        searchPage.verifySort();
-        //Step6
-        searchPage.saveItemNameAndPrice(priceMap);
+        searchPage.verifySearchFilterIsDisplayed(data)
+                //Step4
+                .dropdownPriceHighestFirst()
+                //Step5
+                .verifySort()
+                //Step6
+                .saveItemNameAndPrice(priceMap);
         for (Map.Entry entry : priceMap.entrySet()) {
             System.out.println("Key: " + entry.getKey() + " Value: "
                     + entry.getValue());
@@ -50,10 +50,13 @@ public class SeleniumTest {
         System.out.println("end step6");
         //Step7
         searchPage.addItemToCart();
-        searchPage.saveItemNameAndPriceFromCart();
         //Step8
-        searchPage.comparePrice(priceMap);
-        searchPage.returnMapCartPrice();
+//        searchPage.comparePriceFromCart(priceMap);
+        searchPage.comparePriceFromCartTemp(priceMap);
+//        searchPage.sout();
+//        searchPage.comparePrice(priceMap);
+//        searchPage.returnMapCartPrice();
+        driver.close();
     }
 
     @AfterTest
