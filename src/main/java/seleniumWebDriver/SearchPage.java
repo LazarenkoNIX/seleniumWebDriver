@@ -109,7 +109,7 @@ public class SearchPage {
         WebElement firstSameItem = itemBlockCart.stream()
                 .filter(item -> item.findElement((By.xpath(xpathForItemName))).getText().equals(productName))
                 .findFirst().get();
-        assertThat("Product is not same for the first product in the cart", (firstSameItem.findElement(By.xpath(xpathForItemName)).getText().equals(productName))
+        assertThat("Price is not same for the first product in the cart", (firstSameItem.findElement(By.xpath(xpathForItemName)).getText().equals(productName))
                 && formatStringToDouble(firstSameItem.findElement(By.xpath(".//span[contains(@id,'total_product_price_')]"))).equals(price));
         return this;
     }
