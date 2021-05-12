@@ -1,9 +1,8 @@
 package seleniumWebDriver;
 
-import org.openqa.selenium.By;
+import org.openqa.selenium.*;
 import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
@@ -22,6 +21,9 @@ public class SearchPage {
     @FindBy(xpath = "//option[@value = 'price:desc']")
     private WebElement drpPriceHighFirst;
 
+    @FindBy(xpath = "//select[@id = 'selectProductSort']")
+    private WebElement clickDrp;
+
     @FindBy(xpath = "//div[@class = 'right-block']//a[@class = 'product-name']")
     private List<WebElement> itemName;
 
@@ -38,27 +40,34 @@ public class SearchPage {
     private List<WebElement> priceBlock;
 
     @FindBy(xpath = "//tr[contains(@id,'product_')]")
-    private WebElement itemBlockCart;
+    private List<WebElement> itemBlockCart;
+
+    @FindBy(xpath = "//div[@class = 'product-container']")
+    private WebElement productContainer;
+
+    protected WebDriver driver;
 
     public SearchPage(WebDriver driver) {
+        this.driver = driver;
         PageFactory.initElements(driver, this);
     }
 
     public SearchPage verifySearchFilterIsDisplayed(String searchText) {
-        assertThat(search.getText(), equalToIgnoringCase(format("\"%s\"", searchText)));
+        assertThat(search.getText(), equalTo(format("\"%s\"", searchText)));
         return this;
     }
 
-    public SearchPage dropdownPriceHighestFirst() {
+    public SearchPage selectDropdownPriceHighestFirst() {
+        clickDrp.click();
         drpPriceHighFirst.click();
         return this;
     }
 
-    public SearchPage verifySort() {
+    public SearchPage verifyHighestFirstSort() {
         List<Double> prices = new ArrayList<Double>();
         List<Double> sortedPrice = prices;
         for (WebElement block : priceBlock) {
-            if (noSuchElement(block, ".//span[@class = 'old-price product-price']")) {
+            if (isNoSuchElement(block, ".//span[@class = 'old-price product-price']")) {
                 prices.add(formatStringToDouble(block.findElement(By.xpath(".//span[@class = 'old-price product-price']"))));
             } else {
                 prices.add(formatStringToDouble(block.findElement(By.xpath(".//span[@class = 'price product-price']"))));
@@ -69,29 +78,43 @@ public class SearchPage {
         return this;
     }
 
-    public SearchPage saveItemNameAndPrice(Map<String, Double> mapPrice) {
-        if (mapPrice.containsKey(itemName)) {
-            mapPrice.put(itemName.stream().findFirst().get().getText(), mapPrice.get(itemName) + formatStringToDouble(itemPrice));
+    public SearchPage saveFirstItemNameAndPrice(Map<String, Double> mapPrice) {
+        if (mapPrice.containsKey(getFirstItemName(itemName))) {
+            mapPrice.put(getFirstItemName(itemName), mapPrice.get(itemName) + formatStringToDouble(itemPrice));
         } else {
-            mapPrice.put(itemName.stream().findFirst().get().getText(), formatStringToDouble(itemPrice));
+            mapPrice.put(getFirstItemName(itemName), formatStringToDouble(itemPrice));
         }
+
         return this;
     }
 
-    public SearchPage addItemToCart() {
-        addToCart.click();
+    public SearchPage addFirstItemToCart() {
+//        isNetworkActivityStopped();
+        Actions action = new Actions(driver);
+        action.moveToElement(productContainer);
+        action.moveToElement(addToCart);
+        action.click().build().perform();
+        return this;
+    }
+
+    public SearchPage moveToCart() {
         moveToCart.click();
         return this;
     }
 
     public SearchPage comparePriceFromCartTemp(Map<String, Double> mapPrice) {
-        mapPrice.entrySet().stream()
-                .filter(item -> item.getKey().equals(itemBlockCart.findElement(By.xpath(".//td/p[@class = 'product-name']/a")).getText()))
-                .forEach(item -> assertThat(item.getValue(), equalTo(formatStringToDouble(itemBlockCart.findElement(By.xpath(".//span[contains(@id,'total_product_price_')]"))))));
+        String productName = mapPrice.keySet().stream().findFirst().get();
+        double price = mapPrice.entrySet().stream().findFirst().get().getValue();
+        String xpathForItemName = ".//td/p[@class = 'product-name']/a";
+        WebElement firstSameItem = itemBlockCart.stream()
+                .filter(item -> item.findElement((By.xpath(xpathForItemName))).getText().equals(productName))
+                .findFirst().get();
+        assertThat("Product is not same for the first product in the cart", (firstSameItem.findElement(By.xpath(xpathForItemName)).getText().equals(productName))
+                && formatStringToDouble(firstSameItem.findElement(By.xpath(".//span[contains(@id,'total_product_price_')]"))).equals(price));
         return this;
     }
 
-    public boolean noSuchElement(WebElement webElement, String xpath) {
+    public boolean isNoSuchElement(WebElement webElement, String xpath) {
         try {
             webElement.findElement(By.xpath(xpath));
             return true;
@@ -103,4 +126,13 @@ public class SearchPage {
     public Double formatStringToDouble(WebElement webElement) {
         return parseDouble(webElement.getText().replace("$", ""));
     }
+
+    public String getFirstItemName(List<WebElement> itemName) {
+        return itemName.stream().findFirst().get().getText();
+    }
+    
+//    private boolean isNetworkActivityStopped() {
+//        JavascriptExecutor js = (JavascriptExecutor) driver;
+//        return js.executeScript("return window.$.active").equals(0L);
+//    }
 }

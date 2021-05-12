@@ -16,14 +16,13 @@ public class HomePage {
 
     public HomePage(WebDriver driver) {
         this.driver = driver;
-        String pageUrl = "http://automationpractice.com/index.php";
-        driver.get(pageUrl);
         PageFactory.initElements(driver, this);
     }
 
-    public void setSearch(String search) {
+    public SearchPage setSearch(String search) {
         inputSearch.clear();
         inputSearch.sendKeys(search);
         searchButton.click();
+        return new SearchPage(driver);
     }
 }
