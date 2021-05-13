@@ -74,7 +74,7 @@ public class SearchPage {
         }
         List<Double> sortedPrice = new ArrayList<>(prices);
         sortedPrice.sort(Collections.reverseOrder());
-        assertEquals(prices, sortedPrice);
+        assertThat(prices, equalTo(sortedPrice));
         return this;
     }
 
