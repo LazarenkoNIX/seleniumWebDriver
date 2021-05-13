@@ -20,7 +20,7 @@ public class BaseTest {
     }
 
     public HomePage getHomePage() {
-        String pageUrl = "http://automationpractice.com/index.php";
+        String pageUrl = "http://automationpractice.com";
         driver.get(pageUrl);
         return new HomePage(driver);
     }

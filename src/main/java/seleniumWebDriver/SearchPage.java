@@ -28,7 +28,7 @@ public class SearchPage {
     private List<WebElement> itemName;
 
     @FindBy(xpath = "//div[@class = 'right-block']//span[@class = 'price product-price']")
-    private WebElement itemPrice;
+    private List<WebElement> itemPrice;
 
     @FindBy(xpath = "//a[@title = 'Add to cart']")
     private WebElement addToCart;
@@ -65,14 +65,14 @@ public class SearchPage {
 
     public SearchPage verifyHighestFirstSort() {
         List<Double> prices = new ArrayList<Double>();
-        List<Double> sortedPrice = prices;
         for (WebElement block : priceBlock) {
-            if (isNoSuchElement(block, ".//span[@class = 'old-price product-price']")) {
-                prices.add(formatStringToDouble(block.findElement(By.xpath(".//span[@class = 'old-price product-price']"))));
+            if (isNoSuchElement(block, ".//span[contains(@class, 'old-price') and contains(@class, 'product-price')]")) {
+                prices.add(formatPriceToDouble(block.findElement(By.xpath(".//span[contains(@class, 'old-price') and contains(@class, 'product-price')]"))));
             } else {
-                prices.add(formatStringToDouble(block.findElement(By.xpath(".//span[@class = 'price product-price']"))));
+                prices.add(formatPriceToDouble(block.findElement(By.xpath(".//span[ contains(@class, 'price') and contains (@class, 'product-price')]"))));
             }
         }
+        List<Double> sortedPrice = new ArrayList<>(prices);
         sortedPrice.sort(Collections.reverseOrder());
         assertEquals(prices, sortedPrice);
         return this;
@@ -80,26 +80,31 @@ public class SearchPage {
 
     public SearchPage saveFirstItemNameAndPrice(Map<String, Double> mapPrice) {
         if (mapPrice.containsKey(getFirstItemName(itemName))) {
-            mapPrice.put(getFirstItemName(itemName), mapPrice.get(itemName) + formatStringToDouble(itemPrice));
+            mapPrice.put(getFirstItemName(itemName), mapPrice.get(getFirstItemName(itemName)) + formatPriceToDouble(getFirstItemPrice(itemPrice)));
         } else {
-            mapPrice.put(getFirstItemName(itemName), formatStringToDouble(itemPrice));
+            mapPrice.put(getFirstItemName(itemName), formatPriceToDouble(getFirstItemPrice(itemPrice)));
         }
-
         return this;
     }
 
     public SearchPage addFirstItemToCart() {
-//        isNetworkActivityStopped();
         Actions action = new Actions(driver);
-        action.moveToElement(productContainer);
-        action.moveToElement(addToCart);
-        action.click().build().perform();
+        action.moveToElement(productContainer).build().perform();
+        addToCart.click();
         return this;
     }
 
     public SearchPage moveToCart() {
         moveToCart.click();
         return this;
+    }
+
+    public String getNameOfItemFromBlockForCompare(WebElement webElement, String xpath) {
+        return webElement.findElement(By.xpath(xpath)).getText();
+    }
+
+    public Double getPriceOfItemFromBlockForCompare(WebElement webElement) {
+        return formatPriceToDouble(webElement.findElement(By.xpath(".//span[contains(@id,'total_product_price_')]")));
     }
 
     public SearchPage comparePriceFromCartTemp(Map<String, Double> mapPrice) {
@@ -109,8 +114,10 @@ public class SearchPage {
         WebElement firstSameItem = itemBlockCart.stream()
                 .filter(item -> item.findElement((By.xpath(xpathForItemName))).getText().equals(productName))
                 .findFirst().get();
-        assertThat("Price is not same for the first product in the cart", (firstSameItem.findElement(By.xpath(xpathForItemName)).getText().equals(productName))
-                && formatStringToDouble(firstSameItem.findElement(By.xpath(".//span[contains(@id,'total_product_price_')]"))).equals(price));
+        assertThat(format("Product %s with price %f in the cart is not equals to product %s with price %f",
+                productName, price, getNameOfItemFromBlockForCompare(firstSameItem, xpathForItemName), getPriceOfItemFromBlockForCompare(firstSameItem)),
+                (getNameOfItemFromBlockForCompare(firstSameItem, xpathForItemName).equals(productName))
+                        && getPriceOfItemFromBlockForCompare(firstSameItem).equals(price));
         return this;
     }
 
@@ -123,16 +130,15 @@ public class SearchPage {
         }
     }
 
-    public Double formatStringToDouble(WebElement webElement) {
+    public Double formatPriceToDouble(WebElement webElement) {
         return parseDouble(webElement.getText().replace("$", ""));
     }
 
     public String getFirstItemName(List<WebElement> itemName) {
         return itemName.stream().findFirst().get().getText();
     }
-    
-//    private boolean isNetworkActivityStopped() {
-//        JavascriptExecutor js = (JavascriptExecutor) driver;
-//        return js.executeScript("return window.$.active").equals(0L);
-//    }
+
+    public WebElement getFirstItemPrice(List<WebElement> itemPrice) {
+        return itemPrice.stream().findFirst().get();
+    }
 }
