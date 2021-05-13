@@ -27,7 +27,7 @@ public class SearchPage {
     @FindBy(xpath = "//div[@class = 'right-block']//a[@class = 'product-name']")
     private List<WebElement> itemName;
 
-    @FindBy(xpath = "//div[@class = 'right-block']//span[@class = 'price product-price']")
+    @FindBy(xpath = "//div[@class = 'right-block']//span[ contains(@class, 'price') and contains (@class, 'product-price')]")
     private List<WebElement> itemPrice;
 
     @FindBy(xpath = "//a[@title = 'Add to cart']")
